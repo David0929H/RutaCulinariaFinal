@@ -1,0 +1,217 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Órdenes</title>
+    <link rel="stylesheet" href="{% static 'estilos/styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color: #E9967A;">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'pagina_principal' %}" style="font-size: 1.8em; font-weight: bold;">
+            RUTA CULINARIA
+        </a>
+        <div class="ms-auto">
+            <div class="dropdown">
+                <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Administración
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'registro_pedidos' %}">Ver Registro</a></li>
+                    <li><a class="dropdown-item" href="{% url 'menu_admin' %}">Gestión de Platos</a></li>
+                    <li><a class="dropdown-item" href="{% url 'ordenes' %}">Ver Órdenes</a></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="header-image mb-4">
+    <img src="{% static 'imagenes/headernuevo.jpg' %}" alt="Header Image" class="img-fluid w-100">
+</div>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="alert alert-info display-1 text-center">
+            Gestión de ordenes
+        </div>
+            <a href="{% url 'registro_pedidos' %}" class="btn btn-info me-3">Registro de Pedidos</a>
+            <a href="{% url 'menu_admin' %}" class="btn btn-success">Registrar Nuevo Plato</a>
+    </div>
+
+    <h2 class="text-center mb-5">Órdenes Pendientes</h2>
+    {% if pedidos_pendientes %}
+        {% for pedido in pedidos_pendientes %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>{{ pedido.plato.nombre }}</h5>
+                <p>Cliente: {{ pedido.cliente.username }}</p>
+                <p>Cantidad: {{ pedido.cantidad }}</p>
+                <p>Fecha de Retiro: {{ pedido.fecha_retiro }}</p>
+                <p>Hora de Retiro: {{ pedido.hora_retiro }}</p>
+                <p>Estado: <span class="text-warning">{{ pedido.estado }}</span></p>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" onclick="confirmarAceptar('{{ pedido.id }}')">Aceptar</button>
+                    <button class="btn btn-danger" onclick="confirmarRechazar('{{ pedido.id }}')">Rechazar</button>
+                </div>
+            </div>  
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <h2 class="text-center mt-5 mb-5">Órdenes Aceptadas</h2>
+    {% if pedidos_aceptados %}
+        {% for pedido in pedidos_aceptados %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>{{ pedido.plato.nombre }}</h5>
+                <p>Cliente: {{ pedido.cliente.username }}</p>
+                <p>Cantidad: {{ pedido.cantidad }}</p>
+                <p>Fecha de Retiro: {{ pedido.fecha_retiro }}</p>
+                <p>Hora de Retiro: {{ pedido.hora_retiro }}</p>
+                <p>Estado: <span class="text-success">{{ pedido.estado }}</span></p>
+                
+                {% if pedido.codigo_autenticacion %}
+                    <p>Código de Autenticación: <strong>{{ pedido.codigo_autenticacion }}</strong></p>
+                {% else %}
+                    <p class="text-danger">Código de Autenticación no generado</p>
+                {% endif %}
+    
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" onclick="confirmarPagado('{{ pedido.id }}')">Pagado</button>
+                    <button class="btn btn-danger" onclick="confirmarCancelar('{{ pedido.id }}')">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info text-center">No hay pedidos aceptados.</div>
+    {% endif %}
+
+    <h2 class="text-center mt-5 mb-5">Órdenes Pagadas</h2>
+    {% if pedidos_pagados %}
+        {% for pedido in pedidos_pagados %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>{{ pedido.plato.nombre }}</h5>
+                <p>Cliente: {{ pedido.cliente.username }}</p>
+                <p>Cantidad: {{ pedido.cantidad }}</p>
+                <p>Fecha de Retiro: {{ pedido.fecha_retiro }}</p>
+                <p>Hora de Retiro: {{ pedido.hora_retiro }}</p>
+                <p>Estado: <span class="text-primary">{{ pedido.estado }}</span></p>
+                {% if pedido.codigo_autenticacion %}
+                    <p>Código de Autenticación: <strong>{{ pedido.codigo_autenticacion }}</strong></p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info text-center">No hay pedidos pagados.</div>
+    {% endif %}
+
+    <h2 class="text-center mt-5 mb-5">Órdenes Canceladas</h2>
+    {% if pedidos_cancelados %}
+        {% for pedido in pedidos_cancelados %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>{{ pedido.plato.nombre }}</h5>
+                <p>Cliente: {{ pedido.cliente.username }}</p>
+                <p>Cantidad: {{ pedido.cantidad }}</p>
+                <p>Fecha de Retiro: {{ pedido.fecha_retiro }}</p>
+                <p>Hora de Retiro: {{ pedido.hora_retiro }}</p>
+                <p>Estado: <span class="text-danger">{{ pedido.estado }}</span></p>
+                <p>Motivo de Cancelación: <strong>{{ pedido.motivo_rechazo }}</strong></p>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+</div>
+
+<form id="formAceptar" method="post">
+    {% csrf_token %}
+    <div class="modal fade" id="modalAceptar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Confirmar Aceptación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">¿Estás seguro de aceptar este pedido?</div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form id="formPagado" method="post">
+    {% csrf_token %}
+    <div class="modal fade" id="modalPagado" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Confirmar Pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">¿Marcar como pagado?</div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Confirmar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form id="formCancelar" method="post">
+    {% csrf_token %}
+    <div class="modal fade" id="modalCancelar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Confirmar Cancelación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="motivo">Motivo:</label>
+                    <textarea id="motivo" name="motivo_rechazo" class="form-control"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+function confirmarAceptar(pedidoId) {
+    document.getElementById('formAceptar').action = `/ordenes/aceptar/${pedidoId}/`;
+    new bootstrap.Modal(document.getElementById('modalAceptar')).show();
+}
+
+function confirmarPagado(pedidoId) {
+    document.getElementById('formPagado').action = `/ordenes/pagado/${pedidoId}/`;
+    new bootstrap.Modal(document.getElementById('modalPagado')).show();
+}
+
+function confirmarCancelar(pedidoId) {
+    document.getElementById('formCancelar').action = `/ordenes/cancelar/${pedidoId}/`;
+    new bootstrap.Modal(document.getElementById('modalCancelar')).show();
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

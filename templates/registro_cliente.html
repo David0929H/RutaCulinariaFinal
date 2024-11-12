@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Cliente</title>
+    <link rel="stylesheet" href="{% static 'estilos/styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color: #E9967A;">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'pagina_principal' %}">RUTA CULINARIA</a>
+        <div class="ms-auto">
+            <a href="{% url 'login_cliente' %}" class="btn btn-outline-primary me-3">Iniciar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Header Image -->
+<div class="header-image mb-5">
+    <img src="{% static 'imagenes/headernuevo.jpg' %}" alt="Header Image" class="img-fluid w-100">
+</div>
+
+<!-- Registro Formulario -->
+<div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h3 class="text-center mb-4">Registro Cliente</h3>
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Mensajes de error -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Nombre de usuario -->
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
+                    {{ form.username }}
+                    {% for error in form.username.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Contraseña -->
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+                    {{ form.password }}
+                    {% for error in form.password.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="mb-3">
+                    <label for="{{ form.password_confirmation.id_for_label }}" class="form-label">Confirmar contraseña</label>
+                    {{ form.password_confirmation }}
+                    {% for error in form.password_confirmation.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Número de Teléfono -->
+                <div class="mb-3">
+                    <label for="{{ form.telefono.id_for_label }}" class="form-label">Número de Teléfono</label>
+                    {{ form.telefono }}
+                    <small class="form-text text-muted">Ejemplo: +56912345678</small>
+                    {% for error in form.telefono.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Botón de Registro -->
+                <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer bg-dark text-light text-center py-3 mt-5">
+    <div class="container">
+        <p>© 2024 Restaurante Ruta Culinaria</p>
+    </div>
+</footer>
+
+<!-- Bootstrap Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
